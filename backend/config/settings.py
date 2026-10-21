@@ -6,6 +6,7 @@ del fichero .env de la raíz del repositorio. El código es idéntico en
 desarrollo y en producción; solo cambia el .env.
 """
 
+import re
 from pathlib import Path
 
 import environ
@@ -136,6 +137,33 @@ STORAGES = {
     },
 }
 
+
+# --- Frontend compilado (React) -----------------------------------------------
+
+# Resultado de `npm run build`. En producción Django sirve la app entera
+# (API + frontend) desde un solo puerto; en desarrollo se sigue usando Vite.
+FRONTEND_DIST = REPO_DIR / "frontend" / "dist"
+
+# WhiteNoise sirve en la raíz del sitio los ficheros de esta carpeta
+# (/assets/index-AbC123.js, /favicon.svg...). Solo si existe: en desarrollo,
+# sin build, evita el aviso "No directory at ...".
+WHITENOISE_ROOT = FRONTEND_DIST if FRONTEND_DIST.is_dir() else None
+
+_HASH_DJANGO = re.compile(r"\.[0-9a-f]{12}\.\w+$")
+
+
+def _es_inmutable(path, url):
+    """Ficheros con hash en el nombre: el navegador los guarda un año.
+
+    Si su contenido cambia, cambia el nombre, así que nunca quedan obsoletos.
+    - Vite pone el hash en todo lo que genera en /assets/ (index-BuTdScDf.js).
+    - collectstatic de Django usa 12 caracteres hex (base.abcdef123456.css).
+    """
+    return url.startswith("/assets/") or bool(_HASH_DJANGO.search(url))
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = _es_inmutable
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
@@ -171,3 +199,33 @@ REST_FRAMEWORK = {
 # La sesión caduca a las 8 horas (una jornada) en lugar de las 2 semanas
 # que Django usa por defecto.
 SESSION_COOKIE_AGE = 8 * 60 * 60
+
+
+# --- Registro (logs) -------------------------------------------------------------
+
+# Por defecto, con DEBUG=False Django NO muestra en consola los errores 500:
+# solo intenta enviarlos por correo a ADMINS (que no tenemos). Sin esto, un
+# fallo en producción no dejaría rastro. Todo va a la salida estándar, que
+# run.py muestra en consola y que NSSM guardará en fichero.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{asctime} {levelname} [{name}] {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "consola": {"class": "logging.StreamHandler", "formatter": "simple"},
+    },
+    "root": {"handlers": ["consola"], "level": "INFO"},
+    "loggers": {
+        # Solo errores 500, con traceback completo. Con WARNING también saldría
+        # cada 401/403/404 normal (p. ej. al abrir la app sin sesión): ruido.
+        "django.request": {"handlers": ["consola"], "level": "ERROR", "propagate": False},
+        # El servidor de desarrollo ya registra cada petición por su cuenta
+        "django.server": {"handlers": ["consola"], "level": "INFO", "propagate": False},
+    },
+}
