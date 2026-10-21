@@ -147,4 +147,23 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    # Búsqueda (?search=) y orden (?ordering=) en los listados
+    "DEFAULT_FILTER_BACKENDS": [
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    # Listados paginados de 25 en 25 (?page=2)
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 25,
+    # Máximo 10 intentos de login por minuto y dirección IP
+    "DEFAULT_THROTTLE_RATES": {
+        "login": "10/minute",
+    },
 }
+
+
+# --- Sesión --------------------------------------------------------------------
+
+# La sesión caduca a las 8 horas (una jornada) en lugar de las 2 semanas
+# que Django usa por defecto.
+SESSION_COOKIE_AGE = 8 * 60 * 60

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.db import connection
 from django.http import JsonResponse
-from django.urls import path
+from django.urls import include, path
 
 
 def health(request):
@@ -25,4 +25,10 @@ def health(request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/health/", health),
+    path("api/", include("formacion.urls")),
 ]
+
+if settings.DEBUG:
+    # Solo en desarrollo: añade "Log in" a la API navegable de DRF para
+    # probar los endpoints en el navegador antes de tener React.
+    urlpatterns += [path("api-auth/", include("rest_framework.urls"))]
