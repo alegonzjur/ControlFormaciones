@@ -140,8 +140,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     # Sesión de Django + CSRF: más simple y seguro que JWT para una app interna
+    # Variante propia que responde 401 (no 403) cuando no hay sesión
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
+        "formacion.authentication.SesionAutenticacion",
     ],
     # Por defecto, todo endpoint exige estar autenticado
     "DEFAULT_PERMISSION_CLASSES": [

@@ -4,13 +4,13 @@ from django.db.models.functions import Coalesce
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status, viewsets
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from .authentication import SesionConCsrfSiempre
 from .models import Curso, Empleado, Formacion, Sede, TipoContrato
 from .permissions import PermisosPorModelo
 from .serializers import (
@@ -176,20 +176,6 @@ class CsrfView(APIView):
         return Response({"detail": "ok"})
 
 
-class SesionConCsrfSiempre(SessionAuthentication):
-    """SessionAuthentication de DRF solo exige CSRF a usuarios ya logueados.
-
-    En el login el usuario aún es anónimo, así que lo exigimos siempre para
-    impedir un login forzado desde otra web. Se hace aquí y no con el
-    decorador csrf_protect de Django porque ese responde con una página HTML;
-    así el rechazo es un 403 en JSON que React puede interpretar.
-    """
-
-    def authenticate(self, request):
-        self.enforce_csrf(request)
-        return super().authenticate(request)
-
-
 class LoginView(APIView):
     """POST {username, password} con la cabecera X-CSRFToken."""
 
@@ -222,7 +208,7 @@ class LogoutView(APIView):
 
 
 class MeView(APIView):
-    """GET: usuario actual. Devuelve 403 si no hay sesión iniciada."""
+    """GET: usuario actual. Devuelve 401 si no hay sesión iniciada."""
 
     permission_classes = [IsAuthenticated]
 
