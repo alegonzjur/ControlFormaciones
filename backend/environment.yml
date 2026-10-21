@@ -1,0 +1,22 @@
+# Entorno conda del backend. El mismo fichero sirve para el PC de desarrollo
+# y para el servidor, así ambos tienen la misma versión de Python y de paquetes.
+#
+#   conda env create -f environment.yml      (crear)
+#   conda env update -f environment.yml      (tras cambiar requirements.txt)
+#   conda activate control-formacion
+#
+# Canal conda-forge y "nodefaults": el canal "defaults" está sujeto a los
+# términos de servicio de Anaconda, que según el tipo y tamaño de la
+# organización pueden exigir licencia. conda-forge es comunitario y evita la
+# duda, además de tener los paquetes más actualizados.
+
+name: control-formacion
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      # Las versiones exactas viven en requirements.txt (única fuente de verdad)
+      - -r requirements.txt

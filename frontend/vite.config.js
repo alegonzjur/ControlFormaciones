@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// En desarrollo, React (puerto 5173) reenvía las llamadas /api a Django (8001).
+// En desarrollo, React (puerto 5173) reenvía las llamadas /api a Django (8002).
 // Para el navegador todo sale del mismo origen, igual que en producción,
 // donde Django servirá la API y el build de React desde el mismo puerto.
 export default defineConfig({
@@ -13,8 +13,9 @@ export default defineConfig({
     // DJANGO_CSRF_TRUSTED_ORIGINS y el login fallaría sin motivo aparente.
     strictPort: true,
     proxy: {
-      // 8001 para no chocar con el Django del otro proyecto en el 8000
-      '/api': 'http://localhost:8001',
+      // 8002: el 8000 y el 8001 los usan otros aplicativos.
+      // Es el mismo puerto que usará el servicio NSSM en producción.
+      '/api': 'http://localhost:8002',
     },
   },
 })
