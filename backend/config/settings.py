@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Funciones propias de PostgreSQL. Aquí la usamos para el lookup
+    # "__unaccent" (búsquedas que ignoran tildes).
+    "django.contrib.postgres",
     # Terceros
     "rest_framework",
     # Propias

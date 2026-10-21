@@ -58,7 +58,12 @@ class EmpleadoAdmin(admin.ModelAdmin):
         "es_activo",
     ]
     list_filter = [ActivoFilter, "grupo_profesional", "sede", "contrato"]
-    search_fields = ["nombre", "apellido1", "apellido2", "num_empleado"]
+    search_fields = [
+        "nombre__unaccent",
+        "apellido1__unaccent",
+        "apellido2__unaccent",
+        "num_empleado",
+    ]
     list_select_related = ["sede", "contrato"]
     inlines = [FormacionDeEmpleadoInline]
 
@@ -74,7 +79,7 @@ class EmpleadoAdmin(admin.ModelAdmin):
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
     list_display = ["nombre"]
-    search_fields = ["nombre"]
+    search_fields = ["nombre__unaccent"]
     inlines = [FormacionDeCursoInline]
 
 
@@ -83,10 +88,10 @@ class FormacionAdmin(admin.ModelAdmin):
     list_display = ["empleado", "curso", "nivel", "horas", "fecha_realizacion"]
     list_filter = ["curso", "nivel"]
     search_fields = [
-        "empleado__nombre",
-        "empleado__apellido1",
-        "empleado__apellido2",
-        "curso__nombre",
+        "empleado__nombre__unaccent",
+        "empleado__apellido1__unaccent",
+        "empleado__apellido2__unaccent",
+        "curso__nombre__unaccent",
     ]
     autocomplete_fields = ["empleado", "curso"]
     list_select_related = ["empleado", "curso"]
@@ -95,9 +100,9 @@ class FormacionAdmin(admin.ModelAdmin):
 
 @admin.register(Sede)
 class SedeAdmin(admin.ModelAdmin):
-    search_fields = ["nombre"]
+    search_fields = ["nombre__unaccent"]
 
 
 @admin.register(TipoContrato)
 class TipoContratoAdmin(admin.ModelAdmin):
-    search_fields = ["nombre"]
+    search_fields = ["nombre__unaccent"]

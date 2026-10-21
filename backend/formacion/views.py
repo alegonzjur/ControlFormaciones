@@ -56,7 +56,14 @@ class EmpleadoViewSet(BaseViewSet):
     retrieve: /api/empleados/{id}/  (ficha completa con sus cursos)
     """
 
-    search_fields = ["nombre", "apellido1", "apellido2", "num_empleado"]
+    # "__unaccent": la búsqueda ignora tildes en ambos lados ("perez" = "Pérez").
+    # Requiere la extensión unaccent (migración 0003) y django.contrib.postgres.
+    search_fields = [
+        "nombre__unaccent",
+        "apellido1__unaccent",
+        "apellido2__unaccent",
+        "num_empleado",
+    ]
     ordering_fields = ["apellido1", "fecha_antiguedad", "num_cursos", "total_horas"]
     mensaje_borrado_protegido = (
         "No se puede borrar un empleado con formaciones registradas. "
@@ -102,7 +109,7 @@ class CursoViewSet(BaseViewSet):
     retrieve: /api/cursos/{id}/  (ficha con todos sus empleados y niveles)
     """
 
-    search_fields = ["nombre"]
+    search_fields = ["nombre__unaccent"]
     ordering_fields = ["nombre", "num_empleados"]
     mensaje_borrado_protegido = (
         "No se puede borrar un curso que tiene empleados registrados. "
